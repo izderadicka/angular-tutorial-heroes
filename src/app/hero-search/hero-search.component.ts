@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
+import { HeroService, SearchResult } from '../hero.service';
 
 @Component({
   selector: 'app-hero-search',
@@ -10,17 +10,35 @@ import { HeroService } from '../hero.service';
   styleUrls: ['./hero-search.component.css'],
 })
 export class HeroSearchComponent implements OnInit {
-  heroes$?: Observable<Hero[]>;
+  searchResult: SearchResult = {heroes: [], term: '', complete: false};
+  searchPipe?: Observable<SearchResult>;
   searchTerms = new Subject<string>();
 
   constructor(private heroService: HeroService) {}
 
   ngOnInit(): void {
-    this.heroes$ = this.searchTerms.pipe(
+    this.searchPipe = this.searchTerms.pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap((term) => this.heroService.searchHero(term))
+      map(term => term.trim().toLowerCase()),
+      switchMap((term) => {
+        if (this.searchResult.complete && term.indexOf(this.searchResult.term)>=0) {
+          return of(this.localSearch(term))
+        } else {
+        return this.heroService.searchHero(term);
+        }
+      })
     );
+    this.searchPipe.subscribe(result => this.searchResult = result);
+  }
+
+  localSearch(term:string):SearchResult {
+    return {
+      heroes: this.searchResult.heroes.filter(h => h.name.toLocaleLowerCase().indexOf(term)>=0),
+      complete: true,
+      term
+    }
+    throw new Error("Not implemented")
   }
 
   search(term: string) {

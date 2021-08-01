@@ -4,7 +4,7 @@
     <input type="text" id="search-box" #searchBox (input)="search(searchBox.value)">
   </div>
   <ul class="search-result">
-    <li *ngFor="let hero of heroes$| async">
+    <li *ngFor="let hero of searchResult.heroes">
       <a routerLink="/hero/{{hero.id}}">{{hero.name}}</a>
     </li>
   </ul>

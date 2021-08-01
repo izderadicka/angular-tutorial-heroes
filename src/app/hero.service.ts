@@ -1,12 +1,18 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, tap} from 'rxjs/operators';
+import { catchError, map, tap} from 'rxjs/operators';
 import { Hero } from './hero';
 import { MessageService } from './message.service';
 import { HEROES } from './mock-heroes';
 
 const HEROES_URL="api/heroes";
+
+export interface SearchResult{
+  heroes: Hero[],
+  term: string
+  complete: boolean
+}
 
 @Injectable({
   providedIn: 'root'
@@ -40,16 +46,21 @@ export class HeroService {
     )
   }
 
-  searchHero(term: string): Observable<Hero[]> {
+  searchHero(term: string): Observable<SearchResult> {
     const query = term.trim();
-    if (!query.length) return of([]);
-    return this.http.get<Hero[]>(`${HEROES_URL}/?name=${query}`).pipe(
-      tap(x => {
+    if (!query.length) return of({heroes:[], term: '', complete: false});
+    return this.http.get<Hero[]>(`${HEROES_URL}?name=${query}`).pipe(
+      map(x => {
         const res =
         x.length?`${x.length}`: `no`;
         this.log(`search for ${term} returned ${res} results`);
+        return {
+          heroes:x,
+          complete: true,
+          term: query
+        }
       }),
-      catchError(this.handleError<Hero[]>(`searchHero(${term})`))
+      catchError(this.handleError<SearchResult>(`searchHero(${term})`))
     )
 
   }
