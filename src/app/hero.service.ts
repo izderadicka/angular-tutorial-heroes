@@ -4,9 +4,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap} from 'rxjs/operators';
 import { Hero } from './hero';
 import { MessageService } from './message.service';
-import { HEROES } from './mock-heroes';
 
-const HEROES_URL="api/heroes";
+const HEROES_URL="http://localhost:8080/api/heroes";
 
 export interface SearchResult{
   heroes: Hero[],
@@ -73,11 +72,15 @@ export class HeroService {
     this.messageService.addMessage("HeroService: " + msg);
   }
 
+  error(msg: string, err?: any) {
+    this.messageService.addMessage("MessageService: " + msg);
+    console.error("HeroService ERROR:" + msg, err);
+  }
+
   handleError<T>(operation='operation', defautResult?:T) {
 
     return (err: any):Observable<T> => {
-      console.error(err);
-      this.log(`ERROR in ${operation}: ${err.message}`);
+      this.error(`ERROR in ${operation}: ${err.message}`, err);
       return of(defautResult as T);
     }
 
@@ -87,6 +90,13 @@ export class HeroService {
     return this.http.get<Hero[]>(HEROES_URL).pipe(
       tap(v => this.log(`fetched ${v.length} heroes`)),
       catchError(this.handleError<Hero[]>('getHeroes', []))
+    );
+  }
+
+  getRandomHeroes(): Observable< Hero[]> {
+    return this.http.get<Hero[]>(HEROES_URL+'/random').pipe(
+      tap(v => this.log(`fetched ${v.length} random heroes`)),
+      catchError(this.handleError<Hero[]>('getRandomHeroes', []))
     );
   }
 
