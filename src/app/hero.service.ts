@@ -4,8 +4,9 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap} from 'rxjs/operators';
 import { Hero } from './hero';
 import { MessageService } from './message.service';
+import {environment} from '../environments/environment';
 
-const HEROES_URL="http://localhost:8080/api/heroes";
+const HEROES_URL=environment.apiURL;
 
 export interface SearchResult{
   heroes: Hero[],
