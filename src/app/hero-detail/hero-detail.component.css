@@ -22,3 +22,9 @@ button:disabled {
   color: #ccc;
   cursor: auto;
 }
+
+.hero-name {
+  background-color: red;
+  color: white;
+  padding: 0.5rem;
+}

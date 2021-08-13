@@ -1,7 +1,7 @@
 <h2>Random Heroes</h2>
 
 <div  class="heroes-menu">
-  <a *ngFor="let hero of heroes" routerLink="/hero/{{hero.id}}">
+  <a *ngFor="let hero of heroes" routerLink="/hero/{{hero.id}}" [style.background-color]="hero.color">
     {{hero.name}}
     </a>
 </div>
