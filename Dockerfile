@@ -3,5 +3,5 @@ RUN git clone --depth 1 https://github.com/izderadicka/angular-tutorial-heroes.g
 RUN cd angular-tutorial-heroes && \
     npm install && \
     npm run build
-FROM nginx:1.21-alpine
+FROM nginxinc/nginx-unprivileged:stable
 COPY --from=build angular-tutorial-heroes/dist/* /usr/share/nginx/html/
